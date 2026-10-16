@@ -6,14 +6,14 @@ RSpec.describe "Transactions" do
     click_link "Accounts"
     click_link "Girokonto"
 
-    expect(page).to have_css("tbody tr", count: 5)
+    expect(page).to have_css("main li", count: 5)
     expect(page).to have_text("No more transactions.")
   end
 
   it "filters live, keeps the URL in sync and clears the filters", :aggregate_failures do
     visit account_transactions_path(accounts.girokonto)
     fill_in "Search", with: "ag"
-    expect(page).to have_css("tbody tr", count: 2)
+    expect(page).to have_css("main li", count: 2)
     expect(page.evaluate_script("document.activeElement.name")).to eq("q")
 
     choose "Income", allow_label_click: true
@@ -21,7 +21,7 @@ RSpec.describe "Transactions" do
     expect(page).to have_current_path("#{account_transactions_path(accounts.girokonto)}?q=ag&direction=income")
 
     click_link "Clear filters"
-    expect(page).to have_css("tbody tr", count: 5)
+    expect(page).to have_css("main li", count: 5)
     expect(page).to have_field("Search", with: "")
   end
 

@@ -13,9 +13,9 @@ RSpec.describe "Accounts" do
       get accounts_path
 
       expect(response.body).to have_title("Accounts")
-      expect(response.body).to have_css("tbody tr", count: 1)
-      expect(response.body).to have_css("tbody tr", exact_text: /Girokonto\s*DE45 1203 0000 1234 5678 90\s*1.616,35 € on 14.10.2026/)
-      expect(response.body).to have_link("Girokonto", href: account_transactions_path(accounts.girokonto))
+      expect(response.body).to have_css("main li", count: 1)
+      expect(response.body).to have_css("main li", exact_text: /Girokonto\s*1.616,35 € on 14.10.2026\s*DE45 1203 0000 1234 5678 90/)
+      expect(response.body).to have_css("main li > a[href='#{account_transactions_path(accounts.girokonto)}']", text: "Girokonto")
     end
 
     it "shows None for an account without balances" do
@@ -23,7 +23,7 @@ RSpec.describe "Accounts" do
 
       get accounts_path
 
-      expect(response.body).to have_css("tbody tr", text: /Tagesgeld.*None/)
+      expect(response.body).to have_css("main li", text: /Tagesgeld.*None/)
     end
 
     it "says when there are no accounts and links to an import", :aggregate_failures do

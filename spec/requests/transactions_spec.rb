@@ -20,9 +20,9 @@ RSpec.describe "Transactions" do
       end
 
       it "lists the account's transactions newest first inside the list frame", :aggregate_failures do
-        expect(response.body).to have_css("turbo-frame#transactions_list tbody#transactions tr", count: 5)
-        expect(response.body).to have_css("tbody tr:first-child",
-          exact_text: /14.10.2026\s*Muster Versicherung AG\s*Haftpflicht 10\/2026 Vertrag 1234567\s*-6,90 €/)
+        expect(response.body).to have_css("turbo-frame#transactions_list ul#transactions > li", count: 5)
+        expect(response.body).to have_css("main li:first-child",
+          exact_text: /Muster Versicherung AG\s*-6,90 €\s*14.10.2026 · Haftpflicht 10\/2026 Vertrag 1234567/)
       end
 
       it "renders the filter form, submitting into the list frame" do
@@ -41,7 +41,7 @@ RSpec.describe "Transactions" do
     it "filters and keeps the values in the form", :aggregate_failures do
       get account_transactions_path(girokonto, q: "rewe", direction: "spending", from: "2026-10-01")
 
-      expect(response.body).to have_css("tbody tr", count: 1, text: "REWE")
+      expect(response.body).to have_css("main li", count: 1, text: "REWE")
       expect(response.body).to have_field("Search", with: "rewe")
       expect(response.body).to have_field("From", with: "2026-10-01")
       expect(response.body).to have_checked_field("Spending", visible: :all)
@@ -90,7 +90,7 @@ RSpec.describe "Transactions" do
       it "renders the first page and a sentinel loading the next one with the filters", :aggregate_failures do
         get account_transactions_path(girokonto, direction: "spending")
 
-        expect(response.body).to have_css("tbody tr", count: 2)
+        expect(response.body).to have_css("main li", count: 2)
         next_url = account_transactions_path(girokonto, direction: "spending", page: 2, format: :turbo_stream)
         expect(response.body).to have_css("#transactions_more[data-controller='infinite-scroll']" \
           "[data-infinite-scroll-url-value='#{next_url}']")
@@ -107,7 +107,7 @@ RSpec.describe "Transactions" do
 
         expect(response.media_type).to eq("text/vnd.turbo-stream.html")
         expect(response.body).to have_css("turbo-stream[action='append'][target='transactions'] template", visible: :all)
-        expect(response.body.scan("<tr>").size).to eq(2)
+        expect(response.body.scan("<li>").size).to eq(2)
         expect(response.body).to include("DKB AG").and include("GEHALT 9/26")
       end
 

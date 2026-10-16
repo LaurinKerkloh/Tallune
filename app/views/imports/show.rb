@@ -1,5 +1,5 @@
 class Views::Imports::Show < Views::Base
-  include Views::Transactions::Cells
+  include Views::Transactions::ListItem
 
   def initialize(import:, transactions:)
     @import = import
@@ -19,8 +19,14 @@ class Views::Imports::Show < Views::Base
         end
       end
 
-      summary
-      transaction_table
+      render Components::Columns.new do |columns|
+        columns.main do
+          div(class: "space-y-10") do
+            summary
+            transaction_list
+          end
+        end
+      end
     end
   end
 
@@ -47,9 +53,9 @@ class Views::Imports::Show < Views::Base
     dd(&)
   end
 
-  def transaction_table
+  def transaction_list
     return p(class: "text-muted") { "No new transactions." } if @transactions.empty?
 
-    render Components::Table.new(@transactions, headers: HEADERS), &method(:cells)
+    render(Components::List.new(@transactions)) { |_, transaction| transaction_item(transaction) }
   end
 end

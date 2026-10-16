@@ -9,24 +9,28 @@ class Views::Accounts::Index < Views::Base
     div(class: "w-full space-y-10") do
       h1(class: "text-2xl font-bold") { "Accounts" }
 
-      if @accounts.empty?
-        p(class: "text-muted") do
-          plain "No accounts yet. "
-          render Components::Link.new(href: new_import_path) { "New import" }
-        end
-      else
-        list
+      render Components::Columns.new do |columns|
+        columns.main { @accounts.empty? ? empty : list }
       end
     end
   end
 
   private
 
+  def empty
+    p(class: "text-muted") do
+      plain "No accounts yet. "
+      render Components::Link.new(href: new_import_path) { "New import" }
+    end
+  end
+
   def list
-    render Components::Table.new(@accounts, headers: ["Name", "IBAN", ["Balance", :right]]) do |table, account|
-      table.cell { render Components::Link.new(href: account_transactions_path(account)) { account.name } }
-      table.cell(class: "whitespace-nowrap tabular-nums") { account.iban.scan(/.{1,4}/).join(" ") }
-      table.cell(align: :right) { render Components::Balance.new(account.latest_balance) }
+    render Components::List.new(@accounts) do |_, account|
+      render Components::List::Item.new(href: account_transactions_path(account)) do |item|
+        item.title { account.name }
+        item.subtitle { span(class: "tabular-nums") { account.iban.scan(/.{1,4}/).join(" ") } }
+        item.value { render Components::Balance.new(account.latest_balance) }
+      end
     end
   end
 end

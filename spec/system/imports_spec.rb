@@ -13,7 +13,7 @@ RSpec.describe "Imports" do
     expect(page).to have_text(/Imported \d+ transactions\./)
     import = Import.last
     expect(page).to have_current_path(import_path(import))
-    expect(page).to have_css("tbody tr", count: import.transactions.count)
+    expect(page).to have_css("main li", count: import.transactions.count)
 
     accept_confirm("Delete this import and everything it added?") { click_button "Delete import" }
 

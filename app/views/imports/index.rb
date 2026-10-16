@@ -7,12 +7,12 @@ class Views::Imports::Index < Views::Base
 
   def view_template
     div(class: "w-full space-y-10") do
-      div(class: "flex items-center justify-between gap-4") do
-        h1(class: "text-2xl font-bold") { "Imports" }
-        render Components::Button.new(href: new_import_path) { "New import" }
-      end
+      h1(class: "text-2xl font-bold") { "Imports" }
 
-      history
+      render Components::Columns.new do |columns|
+        columns.main { history }
+        columns.aside { render Components::Button.new(href: new_import_path) { "New import" } }
+      end
     end
   end
 
@@ -21,13 +21,12 @@ class Views::Imports::Index < Views::Base
   def history
     return p(class: "text-muted") { "No imports yet." } if @imports.empty?
 
-    headers = ["Date", "File", "Account", ["New", :right], ["Skipped", :right]]
-    render Components::Table.new(@imports, headers:) do |table, import|
-      table.cell { import.created_at.to_fs(:de) }
-      table.cell { render Components::Link.new(href: import_path(import)) { import.filename } }
-      table.cell { import.account.name }
-      table.cell(align: :right, class: "tabular-nums") { import.new_count.to_s }
-      table.cell(align: :right, class: "tabular-nums") { import.skipped_count.to_s }
+    render Components::List.new(@imports) do |_, import|
+      render Components::List::Item.new(href: import_path(import)) do |item|
+        item.title { import.filename }
+        item.subtitle { "#{import.created_at.to_fs(:de)} · #{import.account.name}" }
+        item.value { span(class: "text-sm tabular-nums") { "#{import.new_count} new · #{import.skipped_count} skipped" } }
+      end
     end
   end
 end
