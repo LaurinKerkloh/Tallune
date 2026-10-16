@@ -42,6 +42,15 @@ RSpec.describe Components::Form do
       expect(rendered).to have_field("From", type: "date")
     end
 
+    it "gives inputs a blank placeholder for the label to float on, but not the select", :aggregate_failures do
+      expect(rendered).to have_css("input#name[placeholder=' ']")
+      expect(rendered).to have_no_css("select[placeholder]")
+    end
+
+    it "turns the select into a themed picker" do
+      expect(rendered).to have_css("select[class*='appearance:base-select'][class*='::picker(select)']")
+    end
+
     it "renders the select with its choices" do
       expect(rendered).to have_select("Kind", options: %w[Income Spending])
     end
@@ -52,6 +61,12 @@ RSpec.describe Components::Form do
 
     expect(rendered).to have_css("form[enctype='multipart/form-data']")
     expect(rendered).to have_field("CSV file", type: "file")
+  end
+
+  it "keeps a placeholder passed by the caller" do
+    rendered = render(described_class.new(url: "/rules")) { |form| form.text_field :name, label: "Name", placeholder: "Groceries" }
+
+    expect(rendered).to have_css("input#name[placeholder='Groceries']")
   end
 
   it "passes Rails select options to the builder and the rest to the select", :aggregate_failures do
