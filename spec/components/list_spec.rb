@@ -38,5 +38,11 @@ RSpec.describe Components::List do
 
       expect(rendered).to have_css("a[href='/imports/1'].hover\\:bg-border\\/40", text: "export.csv")
     end
+
+    it "passes further attributes to the link, e.g. to open it in a frame" do
+      rendered = render(described_class.new(href: "/transactions/1", data: {turbo_frame: "details"})) { |item| item.title { "REWE" } }
+
+      expect(rendered).to have_css("a[href='/transactions/1'][data-turbo-frame='details']")
+    end
   end
 end

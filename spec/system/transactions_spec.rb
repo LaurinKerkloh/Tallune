@@ -34,6 +34,38 @@ RSpec.describe "Transactions" do
     expect(find_field("From")[:max]).to eq("2026-10-05")
   end
 
+  it "opens a transaction's details in a slide-over, highlights it and closes again", :aggregate_failures do
+    visit account_transactions_path(accounts.girokonto)
+    click_link "REWE"
+
+    expect(page).to have_css("#transaction_details h2", text: "REWE")
+    expect(page).to have_css("main li a[aria-current='true']", text: "REWE")
+    expect(page).to have_current_path(account_transactions_path(accounts.girokonto))
+
+    click_button "Close"
+    expect(page).to have_no_css("#transaction_details h2")
+    expect(page).to have_no_css("main li a[aria-current]")
+
+    click_link "DKB AG"
+    expect(page).to have_css("#transaction_details h2", text: "DKB AG")
+    send_keys :escape
+    expect(page).to have_no_css("#transaction_details h2")
+  end
+
+  it "switches to another transaction and closes on a click outside the panel", :aggregate_failures do
+    visit account_transactions_path(accounts.girokonto)
+    click_link "REWE"
+    find_by_id("transaction_details").click
+    expect(page).to have_css("#transaction_details h2", text: "REWE")
+    click_link "DKB AG"
+
+    expect(page).to have_css("#transaction_details h2", text: "DKB AG")
+    expect(page).to have_css("main li a[aria-current='true']", count: 1)
+
+    find("h1").click
+    expect(page).to have_no_css("#transaction_details h2")
+  end
+
   it "shows the empty state when nothing matches" do
     visit account_transactions_path(accounts.girokonto)
     fill_in "From", with: Date.new(2027, 1, 1)

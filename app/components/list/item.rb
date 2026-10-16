@@ -1,8 +1,9 @@
 class Components::List::Item < Components::Base
   CONTENT = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 px-4 py-3"
 
-  def initialize(href: nil)
+  def initialize(href: nil, **attributes)
     @href = href
+    @attributes = attributes
   end
 
   def title(&block) = @title = block
@@ -16,7 +17,7 @@ class Components::List::Item < Components::Base
     vanish(&)
 
     if @href
-      a(href: @href, class: "#{CONTENT} hover:bg-border/40") { content }
+      a(**mix({href: @href, class: "#{CONTENT} hover:bg-border/40 aria-[current=true]:bg-border/40"}, @attributes)) { content }
     else
       div(class: CONTENT) { content }
     end

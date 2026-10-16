@@ -16,14 +16,16 @@ class Views::Transactions::Index < Views::Base
     div(class: "w-full space-y-10") do
       h1(class: "text-2xl font-bold") { @account.name }
 
-      render Components::Columns.new do |columns|
-        columns.main do
-          div(class: "space-y-10") do
-            account_details
-            turbo_frame_tag("transactions_list", class: "block space-y-4") { list }
+      with_transaction_details do
+        render Components::Columns.new do |columns|
+          columns.main do
+            div(class: "space-y-10") do
+              account_details
+              turbo_frame_tag("transactions_list", class: "block space-y-4") { list }
+            end
           end
+          columns.aside { filters }
         end
-        columns.aside { filters }
       end
     end
   end

@@ -11,4 +11,8 @@ class TransactionsController < ApplicationController
       format.turbo_stream { render Views::Transactions::Batch.new(account:, filter:, transactions_page:) }
     end
   end
+
+  def show
+    render Views::Transactions::Show.new(transaction: Transaction.find(params[:id]))
+  end
 end

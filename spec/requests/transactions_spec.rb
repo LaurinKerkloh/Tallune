@@ -31,6 +31,18 @@ RSpec.describe "Transactions" do
         expect(response.body).to have_css("main dd", exact_text: "1.616,35 € on 14.10.2026")
       end
 
+      it "links each item to its details in the slide-over frame" do
+        transaction = girokonto.transactions.find_by!(mandate_reference: "VS-1234567-01")
+
+        expect(response.body).to have_css("main li:first-child a[href='#{transaction_path(transaction)}']" \
+          "[data-turbo-frame='transaction_details'][data-action~='transaction-details#select']")
+      end
+
+      it "renders the empty slide-over frame for the details" do
+        expect(response.body).to have_css("[data-controller='transaction-details'] turbo-frame#transaction_details.fixed",
+          visible: :all)
+      end
+
       it "titles transactions without a counterparty after their reference" do
         transaction = girokonto.transactions.order(:booked_on).last
         transaction.update!(counterparty: nil)

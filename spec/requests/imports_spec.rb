@@ -110,6 +110,11 @@ RSpec.describe "Imports" do
           text: /#{first.counterparty.name}.*#{first.booked_on.to_fs(:de)} · #{Regexp.escape(first.reference)}/)
       end
 
+      it "links each transaction to its details in the slide-over frame", :aggregate_failures do
+        expect(response.body).to have_css("main li a[data-turbo-frame='transaction_details']", count: import.transactions.count)
+        expect(response.body).to have_css("[data-controller='transaction-details'] turbo-frame#transaction_details", visible: :all)
+      end
+
       it "offers to delete it" do
         expect(response.body).to have_css("form[data-turbo-confirm] button", text: "Delete import")
       end

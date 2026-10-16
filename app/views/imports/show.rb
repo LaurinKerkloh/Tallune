@@ -19,11 +19,13 @@ class Views::Imports::Show < Views::Base
         end
       end
 
-      render Components::Columns.new do |columns|
-        columns.main do
-          div(class: "space-y-10") do
-            summary
-            transaction_list
+      with_transaction_details do
+        render Components::Columns.new do |columns|
+          columns.main do
+            div(class: "space-y-10") do
+              summary
+              transaction_list
+            end
           end
         end
       end
