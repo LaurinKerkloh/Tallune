@@ -106,7 +106,7 @@ RSpec.describe Components::Form do
   it "renders the secondary submit variant" do
     rendered = render(described_class.new(url: "/rules")) { |form| form.submit "Preview", variant: :secondary }
 
-    expect(rendered).to have_css("button[type='submit'].border-border", text: "Preview")
+    expect(rendered).to have_css("button[type='submit'].text-primary", text: "Preview")
   end
 
   context "with an invalid model" do

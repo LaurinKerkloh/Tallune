@@ -5,7 +5,7 @@ class Components::Button < Components::Base
 
   VARIANTS = {
     primary: "bg-primary text-background hover:bg-primary-hover",
-    secondary: "border border-border text-text hover:bg-surface",
+    secondary: "bg-primary/15 text-primary hover:bg-primary/25",
     danger: "bg-danger text-background hover:bg-danger-hover"
   }.freeze
 
