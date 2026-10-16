@@ -4,6 +4,7 @@ class Components::Layout < Components::Base
   include Phlex::Rails::Helpers::StyleSheetLinkTag
   include Phlex::Rails::Helpers::JavaScriptImportmapTags
   include Phlex::Rails::Helpers::Flash
+  include Phlex::Rails::Helpers::Request
 
   def initialize(title:)
     @title = title
@@ -30,21 +31,21 @@ class Components::Layout < Components::Base
         javascript_importmap_tags
       end
 
-      body do
-        header(class: "container mx-auto px-5 py-4") do
-          if Current.session
-            nav(class: "flex items-center justify-between") do
-              div(class: "flex gap-6") do
-                render Components::Link.new(href: accounts_path) { "Accounts" }
-                render Components::Link.new(href: imports_path) { "Imports" }
-              end
-              render Components::Button.new(variant: :secondary, href: session_path, method: :delete) { "Sign out" }
+      if Current.session
+        body(class: "flex") do
+          sidebar
+          div(class: "min-w-0 flex-1") do
+            div(class: "mx-auto max-w-6xl space-y-6 px-8 py-10") do
+              flash_messages
+              main(&)
             end
           end
         end
-
-        flash_messages
-        main(class: "container mx-auto mt-16 px-5 flex", &)
+      else
+        body do
+          flash_messages(class: "container mx-auto mt-4 px-5")
+          main(class: "container mx-auto mt-16 px-5 flex", &)
+        end
       end
     end
   end
@@ -59,11 +60,30 @@ class Components::Layout < Components::Base
 
   private
 
-  def flash_messages
+  def sidebar
+    aside(class: "sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border px-4 py-6") do
+      nav(class: "flex flex-1 flex-col gap-1") do
+        a(href: root_path, class: "mb-6 px-3 text-lg font-bold") { "Banking" }
+        nav_link("Accounts", accounts_path)
+        nav_link("Imports", imports_path)
+      end
+      render Components::Button.new(variant: :secondary, href: session_path, method: :delete) { "Sign out" }
+    end
+  end
+
+  def nav_link(text, path)
+    if request.path.start_with?(path)
+      a(href: path, class: "rounded-md bg-surface px-3 py-2 font-semibold text-text", aria_current: "page") { text }
+    else
+      a(href: path, class: "rounded-md px-3 py-2 text-muted hover:bg-surface hover:text-text") { text }
+    end
+  end
+
+  def flash_messages(**attributes)
     messages = flash.to_hash.slice(*FLASH_KINDS.keys)
     return if messages.empty?
 
-    div(class: "container mx-auto mt-4 px-5 space-y-2 empty:hidden") do
+    div(**mix({class: "space-y-2"}, attributes)) do
       messages.each do |key, message|
         render Components::Alert.new(kind: FLASH_KINDS[key]) { message }
       end
