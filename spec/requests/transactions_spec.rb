@@ -25,8 +25,23 @@ RSpec.describe "Transactions" do
           exact_text: /Muster Versicherung AG\s*-6,90 €\s*14.10.2026 · Haftpflicht 10\/2026 Vertrag 1234567/)
       end
 
-      it "renders the filter form, submitting into the list frame" do
-        expect(response.body).to have_css("form[action='#{account_transactions_path(girokonto)}'][method='get']" \
+      it "shows the account's IBAN in groups and its latest balance above the list", :aggregate_failures do
+        expect(response.body).to have_css("main dl + turbo-frame#transactions_list")
+        expect(response.body).to have_css("main dd", exact_text: "DE45 1203 0000 1234 5678 90")
+        expect(response.body).to have_css("main dd", exact_text: "1.616,35 € on 14.10.2026")
+      end
+
+      it "titles transactions without a counterparty after their reference" do
+        transaction = girokonto.transactions.order(:booked_on).last
+        transaction.update!(counterparty: nil)
+
+        get account_transactions_path(girokonto)
+
+        expect(response.body).to have_css("main li:first-child .font-medium", exact_text: transaction.reference)
+      end
+
+      it "renders the filter form in the aside, submitting into the list frame" do
+        expect(response.body).to have_css("main aside form[action='#{account_transactions_path(girokonto)}'][method='get']" \
           "[data-controller~='auto-submit'][data-controller~='date-range'][data-turbo-frame='transactions_list'][data-turbo-action='advance']")
       end
 
@@ -67,7 +82,7 @@ RSpec.describe "Transactions" do
       get account_transactions_path(girokonto, q: "nothing like this")
 
       expect(response.body).to have_text("No transactions match these filters.")
-      expect(response.body).to have_no_css("table")
+      expect(response.body).to have_no_css("ul#transactions")
     end
 
     it "says when the account has no transactions" do

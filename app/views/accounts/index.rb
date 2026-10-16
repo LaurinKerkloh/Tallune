@@ -28,7 +28,7 @@ class Views::Accounts::Index < Views::Base
     render Components::List.new(@accounts) do |_, account|
       render Components::List::Item.new(href: account_transactions_path(account)) do |item|
         item.title { account.name }
-        item.subtitle { span(class: "tabular-nums") { account.iban.scan(/.{1,4}/).join(" ") } }
+        item.subtitle { span(class: "tabular-nums") { account.formatted_iban } }
         item.value { render Components::Balance.new(account.latest_balance) }
       end
     end

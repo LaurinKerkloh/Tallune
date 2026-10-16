@@ -11,6 +11,8 @@ module HasIban
     validate :iban_must_be_valid
   end
 
+  def formatted_iban = iban&.scan(/.{1,4}/)&.join(" ")
+
   private
 
   def iban_must_be_valid

@@ -1,6 +1,6 @@
 class Views::Transactions::Index < Views::Base
   include Phlex::Rails::Helpers::TurboFrameTag
-  include Views::Transactions::Cells
+  include Views::Transactions::ListItem
 
   DIRECTIONS = [["All", ""], *Transaction::Filter::DIRECTIONS.map { [it.humanize, it] }].freeze
 
@@ -16,16 +16,31 @@ class Views::Transactions::Index < Views::Base
     div(class: "w-full space-y-10") do
       h1(class: "text-2xl font-bold") { @account.name }
 
-      filters
-      turbo_frame_tag("transactions_list", class: "block space-y-4") { list }
+      render Components::Columns.new do |columns|
+        columns.main do
+          div(class: "space-y-10") do
+            account_details
+            turbo_frame_tag("transactions_list", class: "block space-y-4") { list }
+          end
+        end
+        columns.aside { filters }
+      end
     end
   end
 
   private
 
+  def account_details
+    dl(class: "grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm") do
+      dt(class: "text-muted") { "IBAN" }
+      dd(class: "tabular-nums") { @account.formatted_iban }
+      dt(class: "text-muted") { "Balance" }
+      dd { render Components::Balance.new(@account.latest_balance) }
+    end
+  end
+
   def filters
     render Components::Form.new(model: @filter, scope: "", url: account_transactions_path(@account), method: :get,
-      class!: "flex flex-wrap items-end gap-4",
       data: {controller: "auto-submit date-range", turbo_frame: "transactions_list", turbo_action: "advance",
              action: "change->auto-submit#submit formdata->auto-submit#dropBlank"}) do |form|
       form.search_field :q, label: "Search", data: {action: "auto-submit#debounce"}
@@ -50,7 +65,7 @@ class Views::Transactions::Index < Views::Base
     clear_filters
     return p(class: "text-muted") { empty_message } if @transactions_page.records.empty?
 
-    render Components::Table.new(@transactions_page.records, headers: HEADERS, body: {id: "transactions"}), &method(:cells)
+    render(Components::List.new(@transactions_page.records, id: "transactions")) { |_, transaction| transaction_item(transaction) }
     render Views::Transactions::More.new(account: @account, filter: @filter, transactions_page: @transactions_page)
   end
 
