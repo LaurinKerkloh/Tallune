@@ -5,6 +5,6 @@ class Components::List < Components::Base
   end
 
   def view_template(&item)
-    ul(**mix({class: "divide-y divide-border"}, @attributes)) { render Items.new(@records), &item }
+    ul(**mix({class: "divide-y divide-border overflow-hidden rounded-lg bg-surface"}, @attributes)) { render Items.new(@records), &item }
   end
 end

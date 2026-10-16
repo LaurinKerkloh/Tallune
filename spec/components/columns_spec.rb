@@ -1,9 +1,6 @@
 RSpec.describe Components::Columns do
   it "renders the main column before the aside", :aggregate_failures do
-    rendered = render(described_class.new) do |columns|
-      columns.main { "List" }
-      columns.aside { "Filters" }
-    end
+    rendered = render(described_class.new) { |columns| columns.main { "List" } && columns.aside { "Filters" } }
 
     expect(rendered).to have_css(".grid > div:first-child", exact_text: "List")
     expect(rendered).to have_css(".grid > aside", exact_text: "Filters")

@@ -26,11 +26,7 @@ RSpec.describe Components::List do
 
   describe Components::List::Item do
     it "shows the subtitle and value apart from the title", :aggregate_failures do
-      rendered = render(described_class.new) do |item|
-        item.title { "REWE" }
-        item.subtitle { "14.10.2026" }
-        item.value { "-6,90 €" }
-      end
+      rendered = render(described_class.new) { |item| item.subtitle { "14.10.2026" } && item.value { "-6,90 €" } }
 
       expect(rendered).to have_css(".text-muted", exact_text: "14.10.2026")
       expect(rendered).to have_css(".text-right", exact_text: "-6,90 €")
@@ -40,7 +36,7 @@ RSpec.describe Components::List do
     it "links the whole item when given an href" do
       rendered = render(described_class.new(href: "/imports/1")) { |item| item.title { "export.csv" } }
 
-      expect(rendered).to have_css("a[href='/imports/1'].hover\\:bg-surface", text: "export.csv")
+      expect(rendered).to have_css("a[href='/imports/1'].hover\\:bg-border\\/40", text: "export.csv")
     end
   end
 end

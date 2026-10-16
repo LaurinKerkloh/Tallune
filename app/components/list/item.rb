@@ -1,5 +1,5 @@
 class Components::List::Item < Components::Base
-  CONTENT = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 px-3 py-2.5"
+  CONTENT = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 px-4 py-3"
 
   def initialize(href: nil)
     @href = href
@@ -16,7 +16,7 @@ class Components::List::Item < Components::Base
     vanish(&)
 
     if @href
-      a(href: @href, class: "#{CONTENT} hover:bg-surface") { content }
+      a(href: @href, class: "#{CONTENT} hover:bg-border/40") { content }
     else
       div(class: CONTENT) { content }
     end
