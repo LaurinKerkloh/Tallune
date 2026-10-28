@@ -23,7 +23,7 @@ RSpec.describe Components::Layout do
   it "links to home, the accounts and imports in the sidebar when signed in", :aggregate_failures do
     signed_in = Current.set(session: users.user.sessions.create!) { render(described_class.new(title: "Home")) }
 
-    expect(signed_in).to have_css("aside.sticky nav a[href='/']", text: "Banking")
+    expect(signed_in).to have_css("aside.sticky nav a[href='/']", text: "Tallune")
     expect(signed_in).to have_css("aside nav a[href='/accounts']", text: "Accounts")
     expect(signed_in).to have_css("aside nav a[href='/imports']", text: "Imports")
   end

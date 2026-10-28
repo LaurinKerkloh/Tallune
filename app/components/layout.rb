@@ -63,7 +63,7 @@ class Components::Layout < Components::Base
   def sidebar
     aside(class: "sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border px-4 py-6") do
       nav(class: "flex flex-1 flex-col gap-1") do
-        a(href: root_path, class: "mb-6 px-3 text-lg font-bold") { "Banking" }
+        a(href: root_path, class: "mb-6 px-3 text-lg font-bold") { "Tallune" }
         nav_link("Accounts", accounts_path)
         nav_link("Imports", imports_path)
       end
