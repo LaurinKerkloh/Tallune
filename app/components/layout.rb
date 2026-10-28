@@ -68,8 +68,10 @@ class Components::Layout < Components::Base
         nav_link("Accounts", accounts_path)
         nav_link("Imports", imports_path)
       end
-      render Components::ThemeMenu.new(theme: @theme)
-      render Components::Button.new(variant: :secondary, href: session_path, method: :delete) { "Sign out" }
+      div(class: "flex items-center justify-between") do
+        render Components::Button.new(variant: :secondary, href: session_path, method: :delete) { "Sign out" }
+        render Components::ThemeMenu.new(theme: @theme)
+      end
     end
   end
 

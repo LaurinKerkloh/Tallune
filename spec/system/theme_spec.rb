@@ -3,16 +3,16 @@ RSpec.describe "Theme" do
     sign_in_as users.user
     visit accounts_path
 
-    find("summary", text: "Theme").click
+    click_button "Theme"
     click_button "Latte"
     expect(page).to have_css("html[data-flavour='latte']")
     expect(page).to have_current_path(accounts_path)
 
-    find("summary", text: "Theme").click
+    click_button "Theme"
     click_button "Teal"
     expect(page).to have_css("html[data-flavour='latte'][data-accent='teal']")
 
-    find("summary", text: "Theme").click
+    click_button "Theme"
     click_button "System"
     expect(page).to have_css("html[data-accent='teal']:not([data-flavour])")
   end

@@ -1,11 +1,17 @@
 RSpec.describe Components::ThemeMenu do
   let(:theme) { Theme.new(flavour: "mocha", accent: "teal") }
 
+  it "opens the menu from an icon button" do
+    rendered = render(described_class.new(theme:))
+
+    expect(rendered).to have_css("button[popovertarget='theme-menu'][aria-label='Theme'] svg", visible: :all)
+  end
+
   it "offers every flavour and the system preference as a form" do
     rendered = render(described_class.new(theme:))
 
     %w[System Latte Frappé Macchiato Mocha].zip(%w[system latte frappe macchiato mocha]).each do |text, value|
-      expect(rendered).to have_css("details form[action='/theme'] button[name='flavour'][value='#{value}']", text:, visible: :all)
+      expect(rendered).to have_css("#theme-menu[popover] form[action='/theme'] button[name='flavour'][value='#{value}']", text:, visible: :all)
     end
   end
 

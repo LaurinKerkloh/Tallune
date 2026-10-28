@@ -3,19 +3,23 @@ class Components::ThemeMenu < Components::Base
     Theme::SYSTEM => "System", "latte" => "Latte", "frappe" => "Frappé", "macchiato" => "Macchiato", "mocha" => "Mocha"
   }.freeze
 
-  def initialize(theme:, **attributes)
+  def initialize(theme:)
     @theme = theme
-    @attributes = attributes
   end
 
   def view_template
-    details(**mix({class: "relative"}, @attributes)) do
-      summary(class: "cursor-pointer list-none rounded-md px-3 py-2 text-muted hover:bg-surface hover:text-text") { "Theme" }
+    render Components::Button.new(variant: :icon, icon: "palette", popovertarget: "theme-menu", aria: {label: "Theme"},
+      class: "[anchor-name:--theme-menu]")
 
-      div(class: "absolute inset-x-0 bottom-full mb-2 space-y-3 rounded-md border border-border bg-surface p-2 shadow-lg") do
-        section("Flavour") { flavours }
-        section("Accent") { accents }
-      end
+    # Anchored above the button, aligned to its right edge; the popover closes on Escape and outside clicks.
+    div(
+      id: "theme-menu",
+      popover: true,
+      class: "inset-auto m-0 mb-2 w-48 space-y-3 rounded-md border border-border bg-surface p-2 text-text shadow-lg " \
+        "[position-anchor:--theme-menu] [position-area:top_span-left]"
+    ) do
+      section("Flavour") { flavours }
+      section("Accent") { accents }
     end
   end
 

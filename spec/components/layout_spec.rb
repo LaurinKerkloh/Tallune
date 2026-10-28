@@ -31,7 +31,7 @@ RSpec.describe Components::Layout do
   it "shows the theme menu in the sidebar when signed in" do
     rendered = Current.set(session: users.user.sessions.create!) { render(described_class.new(title: "Home")) }
 
-    expect(rendered).to have_css("aside.bg-shell details summary", text: "Theme")
+    expect(rendered).to have_css("aside.bg-shell button[aria-label='Theme']")
   end
 
   it "follows the system preference with the default accent without a chosen theme", :aggregate_failures do
