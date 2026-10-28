@@ -13,7 +13,7 @@ class Components::Layout < Components::Base
   def view_template(&)
     doctype
 
-    html do
+    html(data: Theme.from(request.cookie_jar).data) do
       head do
         title { @title }
         meta(name: "viewport", content: "width=device-width,initial-scale=1")
