@@ -14,6 +14,9 @@ RSpec.describe "Imports" do
     import = Import.last
     expect(page).to have_current_path(import_path(import))
     expect(page).to have_css("main li", count: import.transactions.count)
+    choose "Income", allow_label_click: true
+    expect(page).to have_css("main li", count: import.transactions.income.count)
+    expect(page).to have_current_path("#{import_path(import)}?direction=income")
 
     accept_confirm("Delete this import and everything it added?") { click_button "Delete import" }
 

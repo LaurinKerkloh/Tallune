@@ -20,8 +20,7 @@ class ImportsController < ApplicationController
 
   def show
     import = Import.includes(:account, :balances).find(params[:id])
-    transactions = import.transactions.includes(:counterparty).order(:booked_on, :id).load
-    render Views::Imports::Show.new(import:, transactions:)
+    render Views::Imports::Show.new(import:, filter: Transaction::Filter.from(params, import_ids: [import.id]))
   end
 
   def destroy

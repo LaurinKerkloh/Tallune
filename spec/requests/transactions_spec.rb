@@ -1,34 +1,43 @@
 RSpec.describe "Transactions" do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:girokonto) { accounts.girokonto }
 
-  before { sign_in_as users.user }
+  before do
+    travel_to Date.new(2026, 10, 15)
+    sign_in_as users.user
+  end
 
   it "redirects to the login page when signed out" do
     delete session_path
-    get account_transactions_path(girokonto)
+    get transactions_path
 
     expect(response).to redirect_to(new_session_path)
   end
 
-  describe "GET /accounts/:account_id/transactions" do
+  describe "GET /transactions" do
     context "without filters" do
-      before { get account_transactions_path(girokonto) }
+      before { get transactions_path }
 
-      it "is titled after the account", :aggregate_failures do
-        expect(response.body).to have_title("Girokonto")
-        expect(response.body).to have_css("h1", text: "Girokonto")
+      it "is a page of its own", :aggregate_failures do
+        expect(response.body).to have_title("Transactions")
+        expect(response.body).to have_css("h1", text: "Transactions")
       end
 
-      it "lists the account's transactions newest first inside the list frame", :aggregate_failures do
-        expect(response.body).to have_css("turbo-frame#transactions_list ul#transactions > li", count: 5)
+      it "lists all transactions newest first inside the list frame, inside the frame other pages embed",
+        :aggregate_failures do
+        expect(response.body).to have_css("turbo-frame#transactions_frame[data-controller='frame-url'] " \
+          "turbo-frame#transactions_list #transactions li", count: 5)
+        expect(response.body).to have_no_css("turbo-frame#transactions_frame[src]")
         expect(response.body).to have_css("main li:first-child",
           exact_text: /Muster Versicherung AG\s*-6,90 €\s*14.10.2026 · Haftpflicht 10\/2026 Vertrag 1234567/)
       end
 
-      it "shows the account's IBAN in groups and its latest balance above the list", :aggregate_failures do
-        expect(response.body).to have_css("main dl + turbo-frame#transactions_list")
-        expect(response.body).to have_css("main dd", exact_text: "DE45 1203 0000 1234 5678 90")
-        expect(response.body).to have_css("main dd", exact_text: "1.616,35 € on 14.10.2026")
+      it "splits the list into one list per period, each under its label", :aggregate_failures do
+        labels = Capybara.string(response.body).all("#transactions > section > h2").map(&:text)
+
+        expect(labels).to eq(["Yesterday", "October 2026", "September 2026", "August 2026"])
+        expect(response.body).to have_css("#transactions > section > h2 + ul#transactions_2026-10.rounded-lg > li", count: 2)
       end
 
       it "links each item to its details in the slide-over frame" do
@@ -47,14 +56,21 @@ RSpec.describe "Transactions" do
         transaction = girokonto.transactions.order(:booked_on).last
         transaction.update!(counterparty: nil)
 
-        get account_transactions_path(girokonto)
+        get transactions_path
 
         expect(response.body).to have_css("main li:first-child .font-medium", exact_text: transaction.reference)
       end
 
-      it "renders the filter form in the aside, submitting into the list frame" do
-        expect(response.body).to have_css("main aside form[action='#{account_transactions_path(girokonto)}'][method='get']" \
-          "[data-controller~='auto-submit'][data-controller~='date-range'][data-turbo-frame='transactions_list'][data-turbo-action='advance']")
+      it "renders the filter form in the aside, submitting into the list frame without changing the URL",
+        :aggregate_failures do
+        expect(response.body).to have_css("turbo-frame#transactions_frame aside form[action='#{transactions_path}'][method='get']" \
+          "[data-controller~='auto-submit'][data-controller~='date-range'][data-turbo-frame='transactions_list']")
+        expect(response.body).to have_no_css("form[data-turbo-action]")
+      end
+
+      it "syncs only the search params to the page URL" do
+        expect(response.body).to have_css("turbo-frame#transactions_frame[data-action='turbo:frame-load->frame-url#sync']" \
+          "[data-frame-url-params-value='[\"q\",\"from\",\"to\",\"direction\"]']")
       end
 
       it "renders the filters with plain param names", :aggregate_failures do
@@ -65,8 +81,25 @@ RSpec.describe "Transactions" do
       end
     end
 
+    context "with accounts and imports to limit to" do
+      let(:other) { Account.create!(name: "Tagesgeld", iban: "DE18120300001234567891") }
+      let(:import) { Import.create!(filename: "tagesgeld.csv", account: other, skipped_count: 0) }
+
+      before do
+        other.transactions.create!(booked_on: "2026-10-10", value_on: "2026-10-10", amount: "5", reference: "Zinsen",
+          import:, raw_row: "zinsen")
+        get transactions_path(account_ids: [other.id], import_ids: [import.id])
+      end
+
+      it "lists only their transactions, keeping them as hidden fields", :aggregate_failures do
+        expect(response.body).to have_css("main li", count: 1, text: "Zinsen")
+        expect(response.body).to have_css("form input[type='hidden'][name='account_ids[]'][value='#{other.id}']", visible: :all)
+        expect(response.body).to have_css("form input[type='hidden'][name='import_ids[]'][value='#{import.id}']", visible: :all)
+      end
+    end
+
     it "filters and keeps the values in the form", :aggregate_failures do
-      get account_transactions_path(girokonto, q: "rewe", direction: "spending", from: "2026-10-01")
+      get transactions_path(q: "rewe", direction: "spending", from: "2026-10-01")
 
       expect(response.body).to have_css("main li", count: 1, text: "REWE")
       expect(response.body).to have_field("Search", with: "rewe")
@@ -75,78 +108,79 @@ RSpec.describe "Transactions" do
     end
 
     it "limits the date pickers to the other end of the range", :aggregate_failures do
-      get account_transactions_path(girokonto, from: "2026-10-01", to: "2026-10-05")
+      get transactions_path(from: "2026-10-01", to: "2026-10-05")
 
       expect(response.body).to have_css("input#from[max='2026-10-05'][data-date-range-target='from']")
       expect(response.body).to have_css("input#to[min='2026-10-01'][data-date-range-target='to']")
     end
 
-    it "offers to clear the filters only when some are set", :aggregate_failures do
-      get account_transactions_path(girokonto)
+    it "offers to clear the filters only when some are set, reloading the whole frame with the ids kept",
+      :aggregate_failures do
+      get transactions_path(account_ids: [girokonto.id])
       expect(response.body).to have_no_link("Clear filters")
 
-      get account_transactions_path(girokonto, q: "rewe")
-      expect(response.body).to have_css("a[href='#{account_transactions_path(girokonto)}'][data-turbo-frame='_top']",
-        text: "Clear filters")
+      get transactions_path(account_ids: [girokonto.id], q: "rewe")
+      expect(response.body).to have_css("a[href='#{transactions_path(account_ids: [girokonto.id])}']" \
+        "[data-turbo-frame='transactions_frame']", text: "Clear filters")
     end
 
     it "says when no transaction matches the filters", :aggregate_failures do
-      get account_transactions_path(girokonto, q: "nothing like this")
+      get transactions_path(q: "nothing like this")
 
       expect(response.body).to have_text("No transactions match these filters.")
-      expect(response.body).to have_no_css("ul#transactions")
+      expect(response.body).to have_no_css("#transactions")
     end
 
-    it "says when the account has no transactions" do
+    it "says when there are no transactions" do
       account = Account.create!(name: "Tagesgeld", iban: "DE18120300001234567891")
 
-      get account_transactions_path(account)
+      get transactions_path(account_ids: [account.id])
 
       expect(response.body).to have_text("No transactions yet.")
-    end
-
-    it "returns 404 for an unknown account" do
-      get account_transactions_path(account_id: 0)
-
-      expect(response).to have_http_status(:not_found)
     end
 
     context "with more than one page" do
       before { stub_const("TransactionsController::PER_PAGE", 2) }
 
       it "renders the first page and a sentinel loading the next one with the filters", :aggregate_failures do
-        get account_transactions_path(girokonto, direction: "spending")
+        get transactions_path(account_ids: [girokonto.id], direction: "spending")
 
         expect(response.body).to have_css("main li", count: 2)
-        next_url = account_transactions_path(girokonto, direction: "spending", page: 2, format: :turbo_stream)
+        next_url = transactions_path(account_ids: [girokonto.id], direction: "spending", page: 2, format: :turbo_stream)
         expect(response.body).to have_css("#transactions_more[data-controller='infinite-scroll']" \
           "[data-infinite-scroll-url-value='#{next_url}']")
       end
 
       it "has no sentinel on the last page" do
-        get account_transactions_path(girokonto, direction: "spending", page: 2)
+        get transactions_path(account_ids: [girokonto.id], direction: "spending", page: 2)
 
         expect(response.body).to have_no_css("#transactions_more")
       end
 
-      it "appends the next page's rows as a Turbo Stream", :aggregate_failures do
-        get account_transactions_path(girokonto, page: 2, format: :turbo_stream)
+      it "appends the next page's items to their period's list when it is shown already", :aggregate_failures do
+        get transactions_path(account_ids: [girokonto.id], page: 2, format: :turbo_stream)
 
         expect(response.media_type).to eq("text/vnd.turbo-stream.html")
-        expect(response.body).to have_css("turbo-stream[action='append'][target='transactions'] template", visible: :all)
-        expect(response.body.scan("<li>").size).to eq(2)
-        expect(response.body).to include("DKB AG").and include("GEHALT 9/26")
+        stream = response.body[%r{<turbo-stream action="append" target="transactions_2026-10">.*?</turbo-stream>}m]
+        expect(stream).to include("DKB AG").and exclude("<section")
+      end
+
+      it "starts a new list for a period that isn't shown yet", :aggregate_failures do
+        get transactions_path(account_ids: [girokonto.id], page: 2, format: :turbo_stream)
+
+        stream = response.body[%r{<turbo-stream action="append" targets="#transactions:not\(:has\(#transactions_2026-09\)\)">.*?</turbo-stream>}m]
+        expect(stream).to include("<h2", "September 2026", "GEHALT 9/26")
       end
 
       it "replaces the sentinel with the one for the page after" do
-        get account_transactions_path(girokonto, page: 2, format: :turbo_stream)
+        get transactions_path(account_ids: [girokonto.id], page: 2, format: :turbo_stream)
 
         expect(response.body).to have_css("turbo-stream[action='replace'][target='transactions_more'] template", visible: :all)
-          .and include(account_transactions_path(girokonto, page: 3, format: :turbo_stream))
+          .and include(transactions_path(account_ids: [girokonto.id], page: 3, format: :turbo_stream))
       end
 
       it "replaces the sentinel with the end of the list on the last page", :aggregate_failures do
-        get account_transactions_path(girokonto, page: 3, format: :turbo_stream)
+        get transactions_path(account_ids: [girokonto.id], page: 3, format: :turbo_stream)
 
         expect(response.body).to have_css("turbo-stream[action='replace'][target='transactions_more']", visible: :all)
         expect(response.body).to include("No more transactions.").and exclude("infinite-scroll")
@@ -154,7 +188,7 @@ RSpec.describe "Transactions" do
     end
 
     it "does not mark the end of a list that fits into one batch" do
-      get account_transactions_path(girokonto)
+      get transactions_path
 
       expect(response.body).to have_no_text("No more transactions.")
     end

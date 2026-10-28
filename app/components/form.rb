@@ -52,6 +52,11 @@ class Components::Form < Components::Base
     end
   end
 
+  # One hidden field per value, submitted as an array.
+  def hidden_fields(name, values)
+    values.each { @form.hidden_field(name, value: it, multiple: true, id: nil) }
+  end
+
   def submit(text, variant: :primary)
     render Components::Button.new(variant:, type: :submit) { text }
   end

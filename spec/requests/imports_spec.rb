@@ -103,16 +103,13 @@ RSpec.describe "Imports" do
         expect(response.body).to have_css("dd", exact_text: "None")
       end
 
-      it "lists the added transactions", :aggregate_failures do
-        first = import.transactions.order(:booked_on, :id).first
-        expect(response.body).to have_css("main li", count: import.transactions.count)
-        expect(response.body).to have_css("main li:first-child",
-          text: /#{first.counterparty.name}.*#{first.booked_on.to_fs(:de)} · #{Regexp.escape(first.reference)}/)
+      it "shows how many transactions it added" do
+        expect(response.body).to have_css("dd", exact_text: import.transactions.count.to_s)
       end
 
-      it "links each transaction to its details in the slide-over frame", :aggregate_failures do
-        expect(response.body).to have_css("main li a[data-turbo-frame='transaction_details']", count: import.transactions.count)
-        expect(response.body).to have_css("[data-controller='transaction-details'] turbo-frame#transaction_details", visible: :all)
+      it "loads the added transactions into a frame below the summary" do
+        expect(response.body).to have_css("main dl + turbo-frame#transactions_frame" \
+          "[src='#{transactions_path(import_ids: [import.id])}'][data-controller='frame-url']")
       end
 
       it "offers to delete it" do
@@ -125,6 +122,15 @@ RSpec.describe "Imports" do
 
       expect(response.body).to have_css("dd", exact_text: "Girokonto new")
       expect(response.body).to have_css("dd", exact_text: "1.616,35 € on 14.10.2026")
+    end
+
+    it "passes the filters from the URL on to the frame" do
+      import = import_sample
+
+      get import_path(import, direction: "income")
+
+      src = transactions_path(import_ids: [import.id], direction: "income")
+      expect(response.body).to have_css("turbo-frame#transactions_frame[src='#{src}']")
     end
 
     it "offers no delete button for an older import" do

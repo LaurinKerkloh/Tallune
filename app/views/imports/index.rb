@@ -22,10 +22,12 @@ class Views::Imports::Index < Views::Base
     return p(class: "text-muted") { "No imports yet." } if @imports.empty?
 
     render Components::List.new(@imports) do |_, import|
-      render Components::List::Item.new(href: import_path(import)) do |item|
-        item.title { import.filename }
-        item.subtitle { "#{import.created_at.to_fs(:de)} · #{import.account.name}" }
-        item.value { span(class: "text-sm tabular-nums") { "#{import.new_count} new · #{import.skipped_count} skipped" } }
+      render Components::List::Item.new(href: import_path(import)) do
+        div(class: "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4") do
+          div(class: "truncate font-medium") { import.filename }
+          div(class: "text-right text-sm tabular-nums") { "#{import.new_count} new · #{import.skipped_count} skipped" }
+          div(class: "truncate text-sm text-muted") { "#{import.created_at.to_fs(:de)} · #{import.account.name}" }
+        end
       end
     end
   end

@@ -26,10 +26,12 @@ class Views::Accounts::Index < Views::Base
 
   def list
     render Components::List.new(@accounts) do |_, account|
-      render Components::List::Item.new(href: account_transactions_path(account)) do |item|
-        item.title { account.name }
-        item.subtitle { span(class: "tabular-nums") { account.formatted_iban } }
-        item.value { render Components::Balance.new(account.latest_balance) }
+      render Components::List::Item.new(href: account_path(account)) do
+        div(class: "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4") do
+          div(class: "truncate font-medium") { account.name }
+          div(class: "text-right") { render Components::Balance.new(account.latest_balance) }
+          div(class: "truncate text-sm text-muted tabular-nums") { account.formatted_iban }
+        end
       end
     end
   end

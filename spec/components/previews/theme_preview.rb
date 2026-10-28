@@ -84,22 +84,22 @@ class ThemePreview < Lookbook::Preview
     end
 
     def list
-      render Components::List.new(TRANSACTIONS) do |list, (title, subtitle, amount)|
-        list.render Components::List::Item.new do |item|
-          item.title { title }
-          item.subtitle { subtitle }
-          item.value { list.render Components::Amount.new(amount) }
-        end
+      render Components::List.new(TRANSACTIONS) do |list, row|
+        list.render(Components::List::Item.new) { item_content(*row) }
       end
     end
 
     def linked_list
-      render Components::List.new(TRANSACTIONS) do |list, (title, subtitle, amount)|
-        list.render Components::List::Item.new(href: "#", aria: {current: title == "REWE"}) do |item|
-          item.title { title }
-          item.subtitle { subtitle }
-          item.value { list.render Components::Amount.new(amount) }
-        end
+      render Components::List.new(TRANSACTIONS) do |list, row|
+        list.render(Components::List::Item.new(href: "#", aria: {current: row.first == "REWE"})) { item_content(*row) }
+      end
+    end
+
+    def item_content(title, subtitle, amount)
+      div(class: "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4") do
+        div(class: "truncate font-medium") { title }
+        div(class: "text-right") { render Components::Amount.new(amount) }
+        div(class: "truncate text-sm text-muted") { subtitle }
       end
     end
 

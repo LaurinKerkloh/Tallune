@@ -118,6 +118,13 @@ RSpec.describe Components::Form do
     end
   end
 
+  it "renders one hidden field per value, named as an array, without duplicate ids", :aggregate_failures do
+    rendered = render(described_class.new(scope: "", url: "/transactions")) { |form| form.hidden_fields :account_ids, [1, 2] }
+
+    expect(rendered).to have_css("input[type='hidden'][name='account_ids[]']:not([id])", count: 2, visible: :hidden)
+    expect(rendered).to have_css("input[value='2']", visible: :hidden)
+  end
+
   it "renders the secondary submit variant" do
     rendered = render(described_class.new(url: "/rules")) { |form| form.submit "Preview", variant: :secondary }
 
