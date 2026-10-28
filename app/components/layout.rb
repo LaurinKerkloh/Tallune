@@ -11,9 +11,10 @@ class Components::Layout < Components::Base
   end
 
   def view_template(&)
+    @theme = Theme.from(request.cookie_jar)
     doctype
 
-    html(data: Theme.from(request.cookie_jar).data) do
+    html(data: @theme.data) do
       head do
         title { @title }
         meta(name: "viewport", content: "width=device-width,initial-scale=1")
@@ -61,12 +62,13 @@ class Components::Layout < Components::Base
   private
 
   def sidebar
-    aside(class: "sticky top-0 flex h-screen w-56 shrink-0 flex-col border-r border-border px-4 py-6") do
+    aside(class: "sticky top-0 flex h-screen w-56 shrink-0 flex-col gap-2 border-r border-border bg-shell px-4 py-6") do
       nav(class: "flex flex-1 flex-col gap-1") do
         a(href: root_path, class: "mb-6 px-3 text-lg font-bold") { "Tallune" }
         nav_link("Accounts", accounts_path)
         nav_link("Imports", imports_path)
       end
+      render Components::ThemeMenu.new(theme: @theme)
       render Components::Button.new(variant: :secondary, href: session_path, method: :delete) { "Sign out" }
     end
   end

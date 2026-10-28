@@ -28,6 +28,19 @@ RSpec.describe Components::Layout do
     expect(signed_in).to have_css("aside nav a[href='/imports']", text: "Imports")
   end
 
+  it "shows the theme menu in the sidebar when signed in" do
+    rendered = Current.set(session: users.user.sessions.create!) { render(described_class.new(title: "Home")) }
+
+    expect(rendered).to have_css("aside.bg-shell details summary", text: "Theme")
+  end
+
+  it "follows the system preference with the default accent without a chosen theme", :aggregate_failures do
+    rendered = render(described_class.new(title: "Sign in"))
+
+    expect(rendered).to have_css("html[data-accent='mauve']", visible: :all)
+    expect(rendered).to have_no_css("html[data-flavour]", visible: :all)
+  end
+
   it "highlights the section of the current page", :aggregate_failures do
     rendered = Current.set(session: users.user.sessions.create!) do
       render(described_class.new(title: "Girokonto"), path: "/accounts/1/transactions")

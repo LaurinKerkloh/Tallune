@@ -22,6 +22,11 @@ RSpec.describe Components::Button do
     expect(render(described_class.new(variant: :danger)) { "Delete" }).to have_css("button.bg-danger", text: "Delete")
   end
 
+  it "renders the menu and swatch variants", :aggregate_failures do
+    expect(render(described_class.new(variant: :menu)) { "Mocha" }).to have_css("button.w-full.text-left", text: "Mocha")
+    expect(render(described_class.new(variant: :swatch)) { "" }).to have_css("button.rounded-full")
+  end
+
   it "renders a link that looks like a button when given an href" do
     rendered = render(described_class.new(variant: :secondary, href: "/rules/new")) { "New rule" }
 
