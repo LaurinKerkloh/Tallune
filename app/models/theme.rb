@@ -1,5 +1,5 @@
 class Theme
-  FLAVOURS = %w[latte frappe macchiato mocha].freeze
+  FLAVOURS = {"latte" => "Latte", "frappe" => "Frappé", "macchiato" => "Macchiato", "mocha" => "Mocha"}.freeze
   ACCENTS = %w[mauve pink flamingo lavender blue sky teal].freeze
   DEFAULT_ACCENT = "mauve"
   SYSTEM = "system"
@@ -13,14 +13,14 @@ class Theme
   def self.update(cookies, flavour: nil, accent: nil)
     if flavour == SYSTEM
       cookies.delete(:flavour)
-    elsif FLAVOURS.include?(flavour)
+    elsif FLAVOURS.key?(flavour)
       cookies.permanent[:flavour] = flavour
     end
     cookies.permanent[:accent] = accent if ACCENTS.include?(accent)
   end
 
   def initialize(flavour:, accent:)
-    @flavour = flavour if FLAVOURS.include?(flavour)
+    @flavour = flavour if FLAVOURS.key?(flavour)
     @accent = ACCENTS.include?(accent) ? accent : DEFAULT_ACCENT
   end
 

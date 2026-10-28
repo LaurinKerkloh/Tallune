@@ -27,7 +27,7 @@ RSpec.describe Components::ThemeMenu do
     rendered = render(described_class.new(theme:))
 
     expect(rendered).to have_css("form[action='/theme'] input[name='_method'][value='patch']", visible: :hidden)
-    expect(rendered).to have_css("form[action='/theme'][data-turbo='false']", count: Theme::FLAVOURS.size + 1 + Theme::ACCENTS.size, visible: :all)
+    expect(rendered).to have_css("form[action='/theme'][data-turbo='false']", count: 1, visible: :all)
   end
 
   it "marks the current flavour and accent", :aggregate_failures do

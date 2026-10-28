@@ -1,43 +1,55 @@
 @import "tailwindcss";
 
-/* Inline, so utilities read the variables below directly and a nested [data-flavour] element recomputes them. */
+/* Inline, so utilities read the palette where they are used and a nested [data-flavour] element switches it. */
 @theme inline {
-  --color-background: var(--background);
-  --color-shell: var(--shell);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-text: var(--text);
-  --color-muted: var(--muted);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-danger: var(--danger);
-  --color-danger-hover: var(--danger-hover);
-  --color-info: var(--info);
-  --color-success: var(--success);
-  --color-warning: var(--warning);
+  --color-background: var(--ctp-base);
+  --color-shell: var(--ctp-mantle);
+  --color-surface: var(--ctp-surface0);
+  --color-border: var(--ctp-surface1);
+  --color-text: var(--ctp-text);
+  --color-muted: var(--ctp-subtext0);
+  --color-primary: var(--ctp-accent);
+  --color-primary-hover: color-mix(in oklch, var(--ctp-accent) 85%, var(--ctp-text));
+  --color-danger: var(--ctp-red);
+  --color-danger-hover: color-mix(in oklch, var(--ctp-red) 85%, var(--ctp-text));
+  --color-info: var(--ctp-sapphire);
+  --color-success: var(--ctp-green);
+  --color-warning: var(--ctp-yellow);
 }
 
-/* Catppuccin palette, https://catppuccin.com/palette. Only the colours the tokens use. */
+/*
+ * Catppuccin palette, https://catppuccin.com/palette. Only the colours the tokens use.
+ * Without a flavour, color-scheme follows the system and light-dark() picks Latte or Mocha.
+ */
 :root,
+[data-flavour="latte"],
+[data-flavour="mocha"] {
+  color-scheme: light dark;
+  --ctp-base: light-dark(#eff1f5, #1e1e2e);
+  --ctp-mantle: light-dark(#e6e9ef, #181825);
+  --ctp-surface0: light-dark(#ccd0da, #313244);
+  --ctp-surface1: light-dark(#bcc0cc, #45475a);
+  --ctp-text: light-dark(#4c4f69, #cdd6f4);
+  --ctp-subtext0: light-dark(#6c6f85, #a6adc8);
+  --ctp-red: light-dark(#d20f39, #f38ba8);
+  --ctp-green: light-dark(#40a02b, #a6e3a1);
+  --ctp-yellow: light-dark(#df8e1d, #f9e2af);
+  --ctp-sapphire: light-dark(#209fb5, #74c7ec);
+  --ctp-mauve: light-dark(#8839ef, #cba6f7);
+  --ctp-pink: light-dark(#ea76cb, #f5c2e7);
+  --ctp-flamingo: light-dark(#dd7878, #f2cdcd);
+  --ctp-lavender: light-dark(#7287fd, #b4befe);
+  --ctp-blue: light-dark(#1e66f5, #89b4fa);
+  --ctp-sky: light-dark(#04a5e5, #89dceb);
+  --ctp-teal: light-dark(#179299, #94e2d5);
+}
+
 [data-flavour="latte"] {
   color-scheme: light;
-  --ctp-base: #eff1f5;
-  --ctp-mantle: #e6e9ef;
-  --ctp-surface0: #ccd0da;
-  --ctp-surface1: #bcc0cc;
-  --ctp-text: #4c4f69;
-  --ctp-subtext0: #6c6f85;
-  --ctp-red: #d20f39;
-  --ctp-green: #40a02b;
-  --ctp-yellow: #df8e1d;
-  --ctp-sapphire: #209fb5;
-  --ctp-mauve: #8839ef;
-  --ctp-pink: #ea76cb;
-  --ctp-flamingo: #dd7878;
-  --ctp-lavender: #7287fd;
-  --ctp-blue: #1e66f5;
-  --ctp-sky: #04a5e5;
-  --ctp-teal: #179299;
+}
+
+[data-flavour="mocha"] {
+  color-scheme: dark;
 }
 
 [data-flavour="frappe"] {
@@ -82,51 +94,6 @@
   --ctp-teal: #8bd5ca;
 }
 
-/* Mocha twice: CSS can't apply one block both for the attribute and for the system preference. */
-[data-flavour="mocha"] {
-  color-scheme: dark;
-  --ctp-base: #1e1e2e;
-  --ctp-mantle: #181825;
-  --ctp-surface0: #313244;
-  --ctp-surface1: #45475a;
-  --ctp-text: #cdd6f4;
-  --ctp-subtext0: #a6adc8;
-  --ctp-red: #f38ba8;
-  --ctp-green: #a6e3a1;
-  --ctp-yellow: #f9e2af;
-  --ctp-sapphire: #74c7ec;
-  --ctp-mauve: #cba6f7;
-  --ctp-pink: #f5c2e7;
-  --ctp-flamingo: #f2cdcd;
-  --ctp-lavender: #b4befe;
-  --ctp-blue: #89b4fa;
-  --ctp-sky: #89dceb;
-  --ctp-teal: #94e2d5;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-flavour]) {
-    color-scheme: dark;
-    --ctp-base: #1e1e2e;
-    --ctp-mantle: #181825;
-    --ctp-surface0: #313244;
-    --ctp-surface1: #45475a;
-    --ctp-text: #cdd6f4;
-    --ctp-subtext0: #a6adc8;
-    --ctp-red: #f38ba8;
-    --ctp-green: #a6e3a1;
-    --ctp-yellow: #f9e2af;
-    --ctp-sapphire: #74c7ec;
-    --ctp-mauve: #cba6f7;
-    --ctp-pink: #f5c2e7;
-    --ctp-flamingo: #f2cdcd;
-    --ctp-lavender: #b4befe;
-    --ctp-blue: #89b4fa;
-    --ctp-sky: #89dceb;
-    --ctp-teal: #94e2d5;
-  }
-}
-
 :root,
 [data-accent="mauve"] {
   --ctp-accent: var(--ctp-mauve);
@@ -150,28 +117,9 @@
   --ctp-accent: var(--ctp-teal);
 }
 
-/* Custom properties resolve where they are declared, so every element that switches palette maps the tokens again. */
-:root,
-[data-flavour],
-[data-accent] {
-  --background: var(--ctp-base);
-  --shell: var(--ctp-mantle);
-  --surface: var(--ctp-surface0);
-  --border: var(--ctp-surface1);
-  --text: var(--ctp-text);
-  --muted: var(--ctp-subtext0);
-  --primary: var(--ctp-accent);
-  --primary-hover: color-mix(in oklch, var(--ctp-accent) 85%, var(--ctp-text));
-  --danger: var(--ctp-red);
-  --danger-hover: color-mix(in oklch, var(--ctp-red) 85%, var(--ctp-text));
-  --info: var(--ctp-sapphire);
-  --success: var(--ctp-green);
-  --warning: var(--ctp-yellow);
-}
-
 @layer base {
   html {
-    background-color: var(--background);
-    color: var(--text);
+    background-color: var(--ctp-base);
+    color: var(--ctp-text);
   }
 }

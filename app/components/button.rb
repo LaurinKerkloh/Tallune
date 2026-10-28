@@ -9,8 +9,8 @@ class Components::Button < Components::Base
     secondary: "#{PILL} bg-primary/15 text-primary hover:bg-primary/25",
     danger: "#{PILL} bg-danger text-background hover:bg-danger-hover",
     icon: "size-9 justify-center rounded-md text-muted hover:bg-surface hover:text-text",
-    menu: "w-full gap-2 rounded-md px-3 py-1.5 text-left hover:bg-border/40",
-    swatch: "rounded-full p-1 hover:bg-border/40 aria-[current=true]:ring-2 aria-[current=true]:ring-text"
+    # Only a hover background; the caller gives the shape through class.
+    ghost: "hover:bg-border/40"
   }.freeze
 
   def initialize(variant: :primary, icon: nil, href: nil, method: nil, type: "button", **attributes)

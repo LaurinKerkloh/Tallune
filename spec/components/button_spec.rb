@@ -34,9 +34,10 @@ RSpec.describe Components::Button do
     expect(rendered).to have_css("button:has(svg:first-child)", text: "Sign out")
   end
 
-  it "renders the menu and swatch variants", :aggregate_failures do
-    expect(render(described_class.new(variant: :menu)) { "Mocha" }).to have_css("button.w-full.text-left", text: "Mocha")
-    expect(render(described_class.new(variant: :swatch)) { "" }).to have_css("button.rounded-full")
+  it "renders the ghost variant with only a hover background, for callers to shape" do
+    rendered = render(described_class.new(variant: :ghost, class: "w-full rounded-md")) { "Mocha" }
+
+    expect(rendered).to have_css("button.w-full.rounded-md:not(.bg-primary)", text: "Mocha")
   end
 
   it "renders a link that looks like a button when given an href" do
