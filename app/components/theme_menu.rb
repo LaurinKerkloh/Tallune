@@ -18,15 +18,15 @@ class Components::ThemeMenu < Components::Base
     ) do
       # Turbo Drive swaps only the body, so <html> would keep the old data-flavour and data-accent.
       form_with(url: theme_path, method: :patch, class: "space-y-3", data: {turbo: false}) do
-        section("Flavour") { flavours }
-        section("Accent") { accents }
+        group("Flavour") { flavours }
+        group("Accent") { accents }
       end
     end
   end
 
   private
 
-  def section(title)
+  def group(title)
     div do
       p(class: "px-3 pb-1 text-xs font-medium uppercase tracking-wide text-muted") { title }
       yield

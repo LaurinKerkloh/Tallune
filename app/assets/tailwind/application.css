@@ -94,32 +94,40 @@
   --ctp-teal: #8bd5ca;
 }
 
+/* Re-resolved on a nested flavour without its own accent, so it gets the page accent in its own shade. */
 :root,
-[data-accent="mauve"] {
+[data-accent="mauve"],
+[data-accent="mauve"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-mauve);
 }
-[data-accent="pink"] {
+[data-accent="pink"],
+[data-accent="pink"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-pink);
 }
-[data-accent="flamingo"] {
+[data-accent="flamingo"],
+[data-accent="flamingo"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-flamingo);
 }
-[data-accent="lavender"] {
+[data-accent="lavender"],
+[data-accent="lavender"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-lavender);
 }
-[data-accent="blue"] {
+[data-accent="blue"],
+[data-accent="blue"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-blue);
 }
-[data-accent="sky"] {
+[data-accent="sky"],
+[data-accent="sky"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-sky);
 }
-[data-accent="teal"] {
+[data-accent="teal"],
+[data-accent="teal"] :where([data-flavour]:not([data-accent])) {
   --ctp-accent: var(--ctp-teal);
 }
 
 @layer base {
   html {
-    background-color: var(--ctp-base);
-    color: var(--ctp-text);
+    background-color: --theme(--color-background);
+    color: --theme(--color-text);
   }
 }

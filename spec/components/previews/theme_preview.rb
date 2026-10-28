@@ -39,11 +39,11 @@ class ThemePreview < Lookbook::Preview
       end
     end
 
-    # One block per flavour in its own palette; the accent is set too, since it would otherwise come from the page's flavour.
+    # One block per flavour, each in its own palette.
     def swatches
       div(class: "grid grid-cols-2 gap-4") do
         Theme::FLAVOURS.each do |flavour, title|
-          div(class: "space-y-3 rounded-lg bg-background p-4 text-text", data: {flavour:, accent: Theme::DEFAULT_ACCENT}) do
+          div(class: "space-y-3 rounded-lg bg-background p-4 text-text", data: {flavour:}) do
             h3(class: "font-medium") { title }
             div(class: "grid grid-cols-7 gap-3") do
               SWATCHES.each { |name, color| swatch(name, color) }
