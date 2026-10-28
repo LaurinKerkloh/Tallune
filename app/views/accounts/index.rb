@@ -9,24 +9,30 @@ class Views::Accounts::Index < Views::Base
     div(class: "w-full space-y-10") do
       h1(class: "text-2xl font-bold") { "Accounts" }
 
-      if @accounts.empty?
-        p(class: "text-muted") do
-          plain "No accounts yet. "
-          render Components::Link.new(href: new_import_path) { "New import" }
-        end
-      else
-        list
+      render Components::Columns.new do |columns|
+        columns.main { @accounts.empty? ? empty : list }
       end
     end
   end
 
   private
 
+  def empty
+    p(class: "text-muted") do
+      plain "No accounts yet. "
+      render Components::Link.new(href: new_import_path) { "New import" }
+    end
+  end
+
   def list
-    render Components::Table.new(@accounts, headers: ["Name", "IBAN", ["Balance", :right]]) do |table, account|
-      table.cell { render Components::Link.new(href: account_transactions_path(account)) { account.name } }
-      table.cell(class: "whitespace-nowrap tabular-nums") { account.iban.scan(/.{1,4}/).join(" ") }
-      table.cell(align: :right) { render Components::Balance.new(account.latest_balance) }
+    render Components::List.new(@accounts) do |_, account|
+      render Components::List::Item.new(href: account_path(account)) do
+        div(class: "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4") do
+          div(class: "truncate font-medium") { account.name }
+          div(class: "text-right") { render Components::Balance.new(account.latest_balance) }
+          div(class: "truncate text-sm text-muted tabular-nums") { account.formatted_iban }
+        end
+      end
     end
   end
 end

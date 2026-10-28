@@ -27,6 +27,9 @@ module Tallune
     # Lets the import file field show the parser's full-sentence errors without the attribute name in front.
     config.active_model.i18n_customize_full_message = true
 
+    # Components::Field marks invalid fields itself; the default wrapper div would split the input from its floating label.
+    config.action_view.field_error_proc = proc { |html_tag, _instance| html_tag }
+
     # Lookbook is only bundled in development and test.
     if defined?(Lookbook)
       config.lookbook.preview_paths = [Rails.root.join("spec/components/previews")]

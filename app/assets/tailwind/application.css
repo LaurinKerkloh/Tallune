@@ -1,18 +1,19 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: var(--color-zinc-950);
-  --color-surface: var(--color-zinc-900);
-  --color-border: var(--color-zinc-700);
-  --color-text: var(--color-zinc-100);
-  --color-muted: var(--color-zinc-400);
-  --color-primary: var(--color-emerald-500);
-  --color-primary-hover: var(--color-emerald-400);
-  --color-danger: var(--color-rose-500);
-  --color-danger-hover: var(--color-rose-400);
-  --color-info: var(--color-sky-400);
-  --color-success: var(--color-emerald-400);
-  --color-warning: var(--color-amber-400);
+  /* Muted custom values: Tailwind has no green-tinted greys, and its palette colours are too saturated for this theme. */
+  --color-background: oklch(0.18 0.015 148);
+  --color-surface: oklch(0.23 0.018 148);
+  --color-border: oklch(0.34 0.02 148);
+  --color-text: oklch(0.95 0.006 140);
+  --color-muted: oklch(0.73 0.018 145);
+  --color-primary: oklch(0.72 0.16 145);
+  --color-primary-hover: oklch(0.79 0.15 145);
+  --color-danger: oklch(0.64 0.15 15);
+  --color-danger-hover: oklch(0.71 0.13 15);
+  --color-info: oklch(0.75 0.09 230);
+  --color-success: oklch(0.75 0.11 145);
+  --color-warning: oklch(0.8 0.11 80);
 }
 
 @layer base {

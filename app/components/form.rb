@@ -3,6 +3,15 @@ class Components::Form < Components::Base
 
   INPUTS = %i[text_field email_field password_field number_field search_field date_field file_field].freeze
   SELECT_OPTIONS = %i[include_blank prompt selected].freeze
+  # base-select lets the native picker be styled; browsers without it keep their own dropdown.
+  # Chrome opens the picker on the side with more room; position-try-order normal opens it below unless it doesn't fit.
+  SELECT = "flex items-center [appearance:base-select] [&::picker-icon]:text-muted " \
+    "[&::picker(select)]:[appearance:base-select] [&::picker(select)]:mt-1 [&::picker(select)]:rounded-md " \
+    "[&::picker(select)]:border [&::picker(select)]:border-border [&::picker(select)]:bg-surface " \
+    "[&::picker(select)]:p-1 [&::picker(select)]:shadow-lg [&::picker(select)]:[position-try-order:normal] " \
+    "[&_option]:rounded [&_option]:px-3 [&_option]:py-2 [&_option]:outline-none " \
+    "[&_option]:hover:bg-border/40 [&_option]:focus-visible:bg-border/40 " \
+    "[&_option]:checked:text-primary [&_option::checkmark]:text-primary"
 
   def initialize(**options)
     @options = options
@@ -17,13 +26,14 @@ class Components::Form < Components::Base
 
   INPUTS.each do |input|
     define_method(input) do |name, label:, **attributes|
-      field(name, label, attributes) { |input_attributes| @form.public_send(input, name, **input_attributes) }
+      # The label floats up once the blank placeholder is gone, i.e. as soon as there is a value.
+      field(name, label, {placeholder: " ", **attributes}) { |input_attributes| @form.public_send(input, name, **input_attributes) }
     end
   end
 
   def select(name, choices, label:, **attributes)
     options = attributes.extract!(*SELECT_OPTIONS)
-    field(name, label, attributes) { |input_attributes| @form.select(name, choices, options, **input_attributes) }
+    field(name, label, mix({class: SELECT}, attributes)) { |input_attributes| @form.select(name, choices, options, **input_attributes) }
   end
 
   # Segmented buttons: the radios stay focusable but invisible, their labels show the state.
@@ -40,6 +50,11 @@ class Components::Form < Components::Base
         end
       end
     end
+  end
+
+  # One hidden field per value, submitted as an array.
+  def hidden_fields(name, values)
+    values.each { @form.hidden_field(name, value: it, multiple: true, id: nil) }
   end
 
   def submit(text, variant: :primary)

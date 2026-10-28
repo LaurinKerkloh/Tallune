@@ -28,7 +28,7 @@ RSpec.describe "Imports" do
       get imports_path
 
       expect(response.body).to have_title("Imports")
-      expect(response.body).to have_link("New import", href: "/imports/new")
+      expect(response.body).to have_css("main aside a[href='/imports/new']", text: "New import")
       expect(response.body).to have_no_css("main form")
     end
 
@@ -39,13 +39,13 @@ RSpec.describe "Imports" do
       before { get imports_path }
 
       it "lists them newest first, linking to each", :aggregate_failures do
-        expect(response.body).to have_css("tbody tr", count: 2)
-        expect(response.body).to have_css("tbody tr:first-child a[href='/imports/#{newer.id}']", text: "later.csv")
+        expect(response.body).to have_css("main li", count: 2)
+        expect(response.body).to have_css("main li:first-child a[href='/imports/#{newer.id}']", text: "later.csv")
       end
 
-      it "shows date, file, account, new and skipped counts" do
-        expect(response.body).to have_css("tbody tr:last-child",
-          exact_text: /#{older.created_at.to_fs(:de)}\s*girokonto\.csv\s*Girokonto\s*#{older.transactions.count}\s*5/)
+      it "shows file, new and skipped counts, date and account" do
+        expect(response.body).to have_css("main li:last-child",
+          exact_text: /girokonto\.csv\s*#{older.transactions.count} new · 5 skipped\s*#{older.created_at.to_fs(:de)} · Girokonto/)
       end
     end
 
@@ -62,7 +62,7 @@ RSpec.describe "Imports" do
 
       expect(response.body).to have_title("New import")
       expect(response.body).to have_css("main form[action='/imports'][enctype='multipart/form-data'] input[type='file'][name='import[file]'][accept='.csv,text/csv']")
-      expect(response.body).to have_no_css("main table")
+      expect(response.body).to have_no_css("main ul")
     end
   end
 
@@ -103,11 +103,13 @@ RSpec.describe "Imports" do
         expect(response.body).to have_css("dd", exact_text: "None")
       end
 
-      it "lists the added transactions", :aggregate_failures do
-        first = import.transactions.order(:booked_on, :id).first
-        expect(response.body).to have_css("tbody tr", count: import.transactions.count)
-        expect(response.body).to have_css("tbody tr:first-child",
-          text: /#{first.booked_on.to_fs(:de)}.*#{first.counterparty.name}.*#{Regexp.escape(first.reference)}/)
+      it "shows how many transactions it added" do
+        expect(response.body).to have_css("dd", exact_text: import.transactions.count.to_s)
+      end
+
+      it "loads the added transactions into a frame below the summary" do
+        expect(response.body).to have_css("main dl + turbo-frame#transactions_frame" \
+          "[src='#{transactions_path(import_ids: [import.id])}'][data-controller='frame-url']")
       end
 
       it "offers to delete it" do
@@ -120,6 +122,15 @@ RSpec.describe "Imports" do
 
       expect(response.body).to have_css("dd", exact_text: "Girokonto new")
       expect(response.body).to have_css("dd", exact_text: "1.616,35 € on 14.10.2026")
+    end
+
+    it "passes the filters from the URL on to the frame" do
+      import = import_sample
+
+      get import_path(import, direction: "income")
+
+      src = transactions_path(import_ids: [import.id], direction: "income")
+      expect(response.body).to have_css("turbo-frame#transactions_frame[src='#{src}']")
     end
 
     it "offers no delete button for an older import" do

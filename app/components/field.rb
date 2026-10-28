@@ -1,5 +1,9 @@
 class Components::Field < Components::Base
-  INPUT = "mt-1 block w-full rounded-md border bg-surface px-3 py-2 text-text shadow-sm focus:outline-2 focus:outline-primary"
+  INPUT = "peer block w-full rounded-md border bg-surface px-3 pt-6 pb-2 text-text shadow-sm focus:outline-2 focus:outline-primary"
+  # Floated by default, so inputs without a placeholder (date, file, select) never cover their value with it.
+  LABEL = "pointer-events-none absolute left-3 top-2 text-xs text-muted transition-all " \
+    "peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-base " \
+    "peer-focus:top-2 peer-focus:translate-y-0 peer-focus:text-xs peer-focus:text-primary"
 
   def initialize(form:, name:, label:, **attributes)
     @form = form
@@ -11,8 +15,10 @@ class Components::Field < Components::Base
 
   def view_template
     div do
-      @form.label @name, @label, for: @id, class: "block text-sm font-medium"
-      yield mix(input_attributes, @attributes)
+      div(class: "relative") do
+        yield mix(input_attributes, @attributes)
+        @form.label @name, @label, for: @id, class: LABEL
+      end
 
       if errors.any?
         div(id: errors_id) do

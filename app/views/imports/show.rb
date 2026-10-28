@@ -1,9 +1,7 @@
 class Views::Imports::Show < Views::Base
-  include Views::Transactions::Cells
-
-  def initialize(import:, transactions:)
+  def initialize(import:, filter:)
     @import = import
-    @transactions = transactions
+    @filter = filter
   end
 
   def page_title = @import.filename
@@ -20,7 +18,7 @@ class Views::Imports::Show < Views::Base
       end
 
       summary
-      transaction_table
+      render Views::Transactions::Frame.new(filter: @filter)
     end
   end
 
@@ -36,7 +34,7 @@ class Views::Imports::Show < Views::Base
           span(class: "rounded-md border border-primary px-1.5 text-xs text-primary") { "new" }
         end
       end
-      item("New") { @transactions.size.to_s }
+      item("New") { @import.transactions.size.to_s }
       item("Skipped") { @import.skipped_count.to_s }
       item("Balance") { render Components::Balance.new(@import.balances.first) }
     end
@@ -45,11 +43,5 @@ class Views::Imports::Show < Views::Base
   def item(label, &)
     dt(class: "text-muted") { label }
     dd(&)
-  end
-
-  def transaction_table
-    return p(class: "text-muted") { "No new transactions." } if @transactions.empty?
-
-    render Components::Table.new(@transactions, headers: HEADERS), &method(:cells)
   end
 end

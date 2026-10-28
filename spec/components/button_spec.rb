@@ -18,14 +18,14 @@ RSpec.describe Components::Button do
   end
 
   it "renders the secondary and danger variants", :aggregate_failures do
-    expect(render(described_class.new(variant: :secondary)) { "Cancel" }).to have_css("button.border-border", text: "Cancel")
+    expect(render(described_class.new(variant: :secondary)) { "Cancel" }).to have_css("button.text-primary", text: "Cancel")
     expect(render(described_class.new(variant: :danger)) { "Delete" }).to have_css("button.bg-danger", text: "Delete")
   end
 
   it "renders a link that looks like a button when given an href" do
     rendered = render(described_class.new(variant: :secondary, href: "/rules/new")) { "New rule" }
 
-    expect(rendered).to have_css("a[href='/rules/new'].border-border", text: "New rule")
+    expect(rendered).to have_css("a[href='/rules/new'].text-primary", text: "New rule")
   end
 
   it "renders a link for an explicit GET method" do

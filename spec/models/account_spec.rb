@@ -23,6 +23,10 @@ RSpec.describe Account do
     expect(account.iban).to eq("DE18120300001234567891")
   end
 
+  it "formats the IBAN in groups of four" do
+    expect(account.formatted_iban).to eq("DE18 1203 0000 1234 5678 91")
+  end
+
   it "rejects an IBAN with an invalid format" do
     account.iban = "DE18-1203"
 
