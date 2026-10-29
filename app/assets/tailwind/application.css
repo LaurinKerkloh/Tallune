@@ -1,25 +1,133 @@
 @import "tailwindcss";
 
+/* Inline, so utilities read the palette where they are used and a nested [data-flavour] element switches it. */
 @theme inline {
-  /* Muted custom values: Tailwind has no green-tinted greys, and its palette colours are too saturated for this theme. */
-  --color-background: oklch(0.18 0.015 148);
-  --color-surface: oklch(0.23 0.018 148);
-  --color-border: oklch(0.34 0.02 148);
-  --color-text: oklch(0.95 0.006 140);
-  --color-muted: oklch(0.73 0.018 145);
-  --color-primary: oklch(0.72 0.16 145);
-  --color-primary-hover: oklch(0.79 0.15 145);
-  --color-danger: oklch(0.64 0.15 15);
-  --color-danger-hover: oklch(0.71 0.13 15);
-  --color-info: oklch(0.75 0.09 230);
-  --color-success: oklch(0.75 0.11 145);
-  --color-warning: oklch(0.8 0.11 80);
+  --color-background: var(--ctp-base);
+  --color-shell: var(--ctp-mantle);
+  --color-surface: var(--ctp-surface0);
+  --color-border: var(--ctp-surface1);
+  --color-text: var(--ctp-text);
+  --color-muted: var(--ctp-subtext0);
+  --color-primary: var(--ctp-accent);
+  --color-primary-hover: color-mix(in oklch, var(--ctp-accent) 85%, var(--ctp-text));
+  --color-danger: var(--ctp-red);
+  --color-danger-hover: color-mix(in oklch, var(--ctp-red) 85%, var(--ctp-text));
+  --color-info: var(--ctp-sapphire);
+  --color-success: var(--ctp-green);
+  --color-warning: var(--ctp-yellow);
+}
+
+/*
+ * Catppuccin palette, https://catppuccin.com/palette. Only the colours the tokens use.
+ * Without a flavour, color-scheme follows the system and light-dark() picks Latte or Mocha.
+ */
+:root,
+[data-flavour="latte"],
+[data-flavour="mocha"] {
+  color-scheme: light dark;
+  --ctp-base: light-dark(#eff1f5, #1e1e2e);
+  --ctp-mantle: light-dark(#e6e9ef, #181825);
+  --ctp-surface0: light-dark(#ccd0da, #313244);
+  --ctp-surface1: light-dark(#bcc0cc, #45475a);
+  --ctp-text: light-dark(#4c4f69, #cdd6f4);
+  --ctp-subtext0: light-dark(#6c6f85, #a6adc8);
+  --ctp-red: light-dark(#d20f39, #f38ba8);
+  --ctp-green: light-dark(#40a02b, #a6e3a1);
+  --ctp-yellow: light-dark(#df8e1d, #f9e2af);
+  --ctp-sapphire: light-dark(#209fb5, #74c7ec);
+  --ctp-mauve: light-dark(#8839ef, #cba6f7);
+  --ctp-pink: light-dark(#ea76cb, #f5c2e7);
+  --ctp-flamingo: light-dark(#dd7878, #f2cdcd);
+  --ctp-lavender: light-dark(#7287fd, #b4befe);
+  --ctp-blue: light-dark(#1e66f5, #89b4fa);
+  --ctp-sky: light-dark(#04a5e5, #89dceb);
+  --ctp-teal: light-dark(#179299, #94e2d5);
+}
+
+[data-flavour="latte"] {
+  color-scheme: light;
+}
+
+[data-flavour="mocha"] {
+  color-scheme: dark;
+}
+
+[data-flavour="frappe"] {
+  color-scheme: dark;
+  --ctp-base: #303446;
+  --ctp-mantle: #292c3c;
+  --ctp-surface0: #414559;
+  --ctp-surface1: #51576d;
+  --ctp-text: #c6d0f5;
+  --ctp-subtext0: #a5adce;
+  --ctp-red: #e78284;
+  --ctp-green: #a6d189;
+  --ctp-yellow: #e5c890;
+  --ctp-sapphire: #85c1dc;
+  --ctp-mauve: #ca9ee6;
+  --ctp-pink: #f4b8e4;
+  --ctp-flamingo: #eebebe;
+  --ctp-lavender: #babbf1;
+  --ctp-blue: #8caaee;
+  --ctp-sky: #99d1db;
+  --ctp-teal: #81c8be;
+}
+
+[data-flavour="macchiato"] {
+  color-scheme: dark;
+  --ctp-base: #24273a;
+  --ctp-mantle: #1e2030;
+  --ctp-surface0: #363a4f;
+  --ctp-surface1: #494d64;
+  --ctp-text: #cad3f5;
+  --ctp-subtext0: #a5adcb;
+  --ctp-red: #ed8796;
+  --ctp-green: #a6da95;
+  --ctp-yellow: #eed49f;
+  --ctp-sapphire: #7dc4e4;
+  --ctp-mauve: #c6a0f6;
+  --ctp-pink: #f5bde6;
+  --ctp-flamingo: #f0c6c6;
+  --ctp-lavender: #b7bdf8;
+  --ctp-blue: #8aadf4;
+  --ctp-sky: #91d7e3;
+  --ctp-teal: #8bd5ca;
+}
+
+/* Re-resolved on a nested flavour without its own accent, so it gets the page accent in its own shade. */
+:root,
+[data-accent="mauve"],
+[data-accent="mauve"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-mauve);
+}
+[data-accent="pink"],
+[data-accent="pink"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-pink);
+}
+[data-accent="flamingo"],
+[data-accent="flamingo"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-flamingo);
+}
+[data-accent="lavender"],
+[data-accent="lavender"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-lavender);
+}
+[data-accent="blue"],
+[data-accent="blue"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-blue);
+}
+[data-accent="sky"],
+[data-accent="sky"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-sky);
+}
+[data-accent="teal"],
+[data-accent="teal"] :where([data-flavour]:not([data-accent])) {
+  --ctp-accent: var(--ctp-teal);
 }
 
 @layer base {
   html {
-    color-scheme: dark;
-    background-color: var(--color-background);
-    color: var(--color-text);
+    background-color: --theme(--color-background);
+    color: --theme(--color-text);
   }
 }

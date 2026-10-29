@@ -22,6 +22,24 @@ RSpec.describe Components::Button do
     expect(render(described_class.new(variant: :danger)) { "Delete" }).to have_css("button.bg-danger", text: "Delete")
   end
 
+  it "renders the icon variant as a square button with the icon", :aggregate_failures do
+    rendered = render(described_class.new(variant: :icon, icon: "palette", aria: {label: "Theme"}))
+
+    expect(rendered).to have_css("button.size-9.text-muted[aria-label='Theme'] svg[stroke='currentColor']", visible: :all)
+  end
+
+  it "renders the icon before the text" do
+    rendered = render(described_class.new(variant: :secondary, icon: "log-out")) { "Sign out" }
+
+    expect(rendered).to have_css("button:has(svg:first-child)", text: "Sign out")
+  end
+
+  it "renders the ghost variant with only a hover background, for callers to shape" do
+    rendered = render(described_class.new(variant: :ghost, class: "w-full rounded-md")) { "Mocha" }
+
+    expect(rendered).to have_css("button.w-full.rounded-md:not(.bg-primary)", text: "Mocha")
+  end
+
   it "renders a link that looks like a button when given an href" do
     rendered = render(described_class.new(variant: :secondary, href: "/rules/new")) { "New rule" }
 

@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :imports, only: %i[index new create show destroy]
   resources :accounts, only: %i[index show]
   resources :transactions, only: %i[index show]
+  resource :theme, only: :update
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

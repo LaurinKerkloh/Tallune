@@ -6,7 +6,7 @@ class ThemePreview < Lookbook::Preview
 
   class Overview < Components::Base
     SWATCHES = {
-      "background" => "bg-background", "surface" => "bg-surface", "border" => "bg-border", "text" => "bg-text",
+      "background" => "bg-background", "shell" => "bg-shell", "surface" => "bg-surface", "border" => "bg-border", "text" => "bg-text",
       "muted" => "bg-muted", "primary" => "bg-primary", "primary-hover" => "bg-primary-hover", "danger" => "bg-danger",
       "danger-hover" => "bg-danger-hover", "info" => "bg-info", "success" => "bg-success", "warning" => "bg-warning"
     }.freeze
@@ -39,14 +39,27 @@ class ThemePreview < Lookbook::Preview
       end
     end
 
+    # One block per flavour, each in its own palette.
     def swatches
-      div(class: "grid grid-cols-6 gap-4") do
-        SWATCHES.each do |name, color|
-          div(class: "space-y-1") do
-            div(class: "h-12 rounded-md border border-border #{color}")
-            p(class: "text-xs text-muted") { name }
+      div(class: "grid grid-cols-2 gap-4") do
+        Theme::FLAVOURS.each do |flavour, title|
+          div(class: "space-y-3 rounded-lg bg-background p-4 text-text", data: {flavour:}) do
+            h3(class: "font-medium") { title }
+            div(class: "grid grid-cols-7 gap-3") do
+              SWATCHES.each { |name, color| swatch(name, color) }
+            end
+            div(class: "grid grid-cols-7 gap-3") do
+              Theme::ACCENTS.each { |accent| swatch(accent, "bg-primary", data: {accent:}) }
+            end
           end
         end
+      end
+    end
+
+    def swatch(name, color, **attributes)
+      div(class: "space-y-1", **attributes) do
+        div(class: "h-10 rounded-md border border-border #{color}")
+        p(class: "truncate text-xs text-muted") { name }
       end
     end
 

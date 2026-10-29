@@ -9,6 +9,14 @@ RSpec.describe "Lookbook" do
     expect(Lookbook.previews.map(&:name)).to include("button", "link", "alert", "form")
   end
 
+  it "renders previews in the theme chosen in the app" do
+    cookies[:flavour] = "latte"
+    cookies[:accent] = "sky"
+    get Lookbook.previews.find { it.name == "button" }.scenarios.first.preview_path
+
+    expect(response.body).to have_css("html[data-flavour='latte'][data-accent='sky']", visible: :all)
+  end
+
   Lookbook.previews.each do |preview|
     preview.scenarios.each do |scenario|
       it "renders #{preview.name}/#{scenario.name} with the app stylesheet", :aggregate_failures do
